@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LightningTest — boceto</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #080b14;
+        --panel: #111726;
+        --panel-2: #0d1320;
+        --line: #1f2a3f;
+        --text: #edf2ff;
+        --dim: #7f8ca6;
+        --cyan: #2fd8ff;
+        --violet: #8b6cff;
+        --green: #3ddc97;
+        --amber: #ffbe4d;
+        --radius: 16px;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body { height: 100%; margin: 0; }
+
+      body {
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(70% 50% at 50% 0%, #16233a 0%, transparent 70%),
+          var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        user-select: none;
+      }
+
+      .app {
+        width: 100%;
+        max-width: 560px;
+        padding: 20px 24px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      /* ---- top bar ---- */
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .conn { display: flex; flex-direction: column; gap: 2px; }
+      .isp { font-size: 13px; font-weight: 600; }
+      .ip {
+        font-size: 11px;
+        color: var(--dim);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .server {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        max-width: 60%;
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--panel-2);
+        color: var(--text);
+        font: inherit;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .server:hover { border-color: #2d3c58; }
+      .server .label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .server svg { flex: none; color: var(--dim); }
+
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 10px var(--green);
+        flex: none;
+      }
+
+      /* ---- gauge ---- */
+      .gauge-wrap {
+        position: relative;
+        display: grid;
+        place-items: center;
+        margin-top: 4px;
+      }
+
+      .gauge { width: 100%; max-width: 320px; aspect-ratio: 1; }
+
+      .track, .arc {
+        fill: none;
+        stroke-width: 14;
+        stroke-linecap: round;
+      }
+
+      .track { stroke: #16203300; stroke: var(--panel); }
+
+      .arc {
+        stroke: url(#grad);
+        filter: drop-shadow(0 0 9px rgba(47, 216, 255, 0.45));
+        transition: stroke-dasharray 120ms linear;
+      }
+
+      .center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+      }
+
+      .value {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      #num {
+        font-size: 62px;
+        font-weight: 700;
+        letter-spacing: -2px;
+        line-height: 1;
+      }
+
+      #num.dim { color: #5c6880; }
+
+      .unit {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--dim);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .phase {
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--cyan);
+      }
+
+      /* ---- action ---- */
+      .actions { display: flex; justify-content: center; }
+
+      #go {
+        min-width: 160px;
+        padding: 13px 34px;
+        border: 0;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--cyan), var(--violet));
+        color: #05080f;
+        font: inherit;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        box-shadow: 0 10px 30px -12px rgba(47, 216, 255, 0.9);
+      }
+
+      #go:hover { filter: brightness(1.07); }
+
+      #go.running {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--text);
+        box-shadow: none;
+      }
+
+      /* ---- cards ---- */
+      .cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+      }
+
+      .card.active { border-color: #2b4a63; background: #101b2a; }
+
+      .icon {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        flex: none;
+        border-radius: 10px;
+        background: #0b1220;
+        color: var(--dim);
+      }
+
+      .card.active .icon { color: var(--cyan); }
+
+      .card .body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+      .card .k {
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--dim);
+      }
+      .card .v {
+        font-size: 22px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.1;
+      }
+      .card .u2 { font-size: 11px; color: var(--dim); margin-left: 3px; }
+
+      .foot {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--dim);
+      }
+
+      /* ---- modal ---- */
+      .modal {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: rgba(4, 7, 13, 0.72);
+        backdrop-filter: blur(6px);
+      }
+
+      .modal[hidden] { display: none; }
+
+      .sheet {
+        width: 100%;
+        max-width: 440px;
+        max-height: 78vh;
+        display: flex;
+        flex-direction: column;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        overflow: hidden;
+      }
+
+      .sheet header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 18px 12px;
+      }
+
+      .sheet h2 { margin: 0; font-size: 15px; }
+
+      .x {
+        border: 0;
+        background: none;
+        color: var(--dim);
+        font-size: 16px;
+        cursor: pointer;
+        padding: 4px 6px;
+      }
+
+      #q {
+        margin: 0 18px 10px;
+        padding: 11px 14px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel-2);
+        color: var(--text);
+        font: inherit;
+        font-size: 13px;
+        outline: none;
+      }
+
+      #q:focus { border-color: #2f4a68; }
+
+      #list {
+        list-style: none;
+        margin: 0;
+        padding: 0 8px;
+        overflow-y: auto;
+        flex: 1;
+      }
+
+      #list li { margin: 0; }
+
+      #list button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        padding: 11px 10px;
+        border: 0;
+        border-radius: 10px;
+        background: none;
+        color: var(--text);
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      #list button:hover { background: #162035; }
+      #list .sel { color: var(--cyan); font-size: 12px; }
+
+      .s-name { font-size: 13px; }
+      .s-loc { font-size: 11px; color: var(--dim); }
+
+      .hint {
+        margin: 0;
+        padding: 12px 18px 16px;
+        font-size: 11px;
+        color: var(--dim);
+        border-top: 1px solid var(--line);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="top">
+        <div class="conn">
+          <span class="isp">Telmex DSL</span>
+          <span class="ip">2806:1016:7:98e6::e873</span>
+        </div>
+        <button class="server" id="serverBtn" type="button">
+          <span class="dot"></span>
+          <span class="label" id="serverLabel">Megacable · Ciudad Juárez</span>
+          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.6" fill="none" />
+          </svg>
+        </button>
+      </header>
+
+      <section class="gauge-wrap">
+        <svg class="gauge" viewBox="0 0 300 300" aria-hidden="true">
+          <defs>
+            <linearGradient id="grad" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0%" stop-color="#2fd8ff" />
+              <stop offset="100%" stop-color="#8b6cff" />
+            </linearGradient>
+          </defs>
+          <circle class="track" cx="150" cy="150" r="120"
+                  stroke-dasharray="565.5 754" transform="rotate(135 150 150)" />
+          <circle id="arc" class="arc" cx="150" cy="150" r="120"
+                  stroke-dasharray="0 754" transform="rotate(135 150 150)" />
+        </svg>
+
+        <div class="center">
+          <div class="value">
+            <span id="num" class="dim">0</span>
+            <span class="unit">Mbps</span>
+          </div>
+          <span class="phase" id="phase">Listo</span>
+        </div>
+      </section>
+
+      <div class="actions">
+        <button id="go" type="button">MEDIR</button>
+      </div>
+
+      <section class="cards">
+        <div class="card" id="card-ping">
+          <span class="icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M1 8h3l2-5 3 10 2-5h4" stroke="currentColor" stroke-width="1.5"
+                    fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <div class="body">
+            <span class="k">Ping</span>
+            <span class="v"><span id="ping">—</span><span class="u2">ms</span></span>
+          </div>
+        </div>
+
+        <div class="card" id="card-jitter">
+          <span class="icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M1 10l3-6 3 8 3-6 4 4" stroke="currentColor" stroke-width="1.5"
+                    fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <div class="body">
+            <span class="k">Jitter</span>
+            <span class="v"><span id="jitter">—</span><span class="u2">ms</span></span>
+          </div>
+        </div>
+
+        <div class="card" id="card-down">
+          <span class="icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 2v10m0 0l-4-4m4 4l4-4" stroke="currentColor" stroke-width="1.5"
+                    fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <div class="body">
+            <span class="k">Bajada</span>
+            <span class="v"><span id="down">—</span><span class="u2">Mbps</span></span>
+          </div>
+        </div>
+
+        <div class="card" id="card-up">
+          <span class="icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 14V4m0 0l-4 4m4-4l4 4" stroke="currentColor" stroke-width="1.5"
+                    fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <div class="body">
+            <span class="k">Subida</span>
+            <span class="v"><span id="up">—</span><span class="u2">Mbps</span></span>
+          </div>
+        </div>
+      </section>
+
+      <footer class="foot">
+        <span id="stamp">Boceto interactivo · datos simulados</span>
+        <span id="sid">servidor 58237</span>
+      </footer>
+    </div>
+
+    <div class="modal" id="modal" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+        <header>
+          <h2 id="sheetTitle">Elegir servidor</h2>
+          <button class="x" id="close" type="button" aria-label="Cerrar">✕</button>
+        </header>
+        <input id="q" type="search" placeholder="Buscar por ciudad o proveedor…" autocomplete="off" />
+        <ul id="list"></ul>
+        <p class="hint">Los más cercanos según Ookla para tu conexión.</p>
+      </div>
+    </div>
+
+    <script>
+      const SERVERS = [
+        { id: 72430, name: "iCentral Sistemas y Comunicaciones", location: "Ciudad Juárez", country: "Mexico" },
+        { id: 68105, name: "INIX 360", location: "Ciudad Juárez", country: "Mexico" },
+        { id: 68895, name: "Flō Networks", location: "Ciudad Juárez", country: "Mexico" },
+        { id: 16214, name: "Totalplay", location: "Ciudad Juarez", country: "Mexico" },
+        { id: 12533, name: "IZZI", location: "Ciudad Juarez", country: "Mexico" },
+        { id: 3355, name: "INFINITUM", location: "Ciudad Juárez", country: "Mexico" },
+        { id: 58237, name: "Megacable", location: "Ciudad Juárez", country: "Mexico" },
+        { id: 69552, name: "Stered", location: "Ciudad Juarez", country: "Mexico" },
+        { id: 39123, name: "JackRabbit Internet", location: "El Paso, TX", country: "United States" },
+        { id: 65151, name: "Vexus Fiber", location: "Las Cruces, NM", country: "United States" },
+      ];
+
+      const $ = (id) => document.getElementById(id);
+      const CIRC = 2 * Math.PI * 120;
+      const SPAN = CIRC * 0.75; // 270°
+
+      let selected = SERVERS[6];
+      let running = false;
+
+      const fmt = (n) => (n >= 100 ? n.toFixed(0) : n.toFixed(1));
+
+      function drawGauge(mbps) {
+        // Log scale 1..1000 Mbps, same mapping the real app should use.
+        const frac = Math.min(1, Math.log10(1 + Math.max(0, mbps)) / Math.log10(1001));
+        const arc = $("arc");
+        arc.setAttribute("stroke-dasharray", `${SPAN * frac} ${CIRC}`);
+        // A round cap still paints a dot at zero length.
+        arc.style.opacity = frac > 0.002 ? 1 : 0;
+      }
+
+      function phase(text) {
+        $("phase").textContent = text;
+      }
+
+      function mark(...ids) {
+        for (const el of document.querySelectorAll(".card")) el.classList.remove("active");
+        for (const id of ids) $(id).classList.add("active");
+      }
+
+      function setServer(s) {
+        selected = s;
+        $("serverLabel").textContent = `${s.name} · ${s.location}`;
+        $("sid").textContent = `servidor ${s.id}`;
+      }
+
+      /* ---- server picker ---- */
+      function renderList(filter = "") {
+        const needle = filter.trim().toLowerCase();
+        const ul = $("list");
+        ul.innerHTML = "";
+        for (const s of SERVERS) {
+          const hay = `${s.name} ${s.location} ${s.country}`.toLowerCase();
+          if (needle && !hay.includes(needle)) continue;
+          const li = document.createElement("li");
+          const b = document.createElement("button");
+          b.type = "button";
+          b.innerHTML = `
+            <span>
+              <span class="s-name"></span><br />
+              <span class="s-loc"></span>
+            </span>
+            ${s.id === selected.id ? '<span class="sel">en uso</span>' : ""}`;
+          b.querySelector(".s-name").textContent = s.name;
+          b.querySelector(".s-loc").textContent = `${s.location} · ${s.country}`;
+          b.addEventListener("click", () => {
+            setServer(s);
+            closeModal();
+          });
+          li.appendChild(b);
+          ul.appendChild(li);
+        }
+        if (!ul.children.length) {
+          const li = document.createElement("li");
+          li.className = "s-loc";
+          li.style.padding = "16px 10px";
+          li.textContent = "Sin resultados";
+          ul.appendChild(li);
+        }
+      }
+
+      function openModal() {
+        $("modal").hidden = false;
+        $("q").value = "";
+        renderList();
+        $("q").focus();
+      }
+
+      function closeModal() {
+        $("modal").hidden = true;
+        $("serverBtn").focus();
+      }
+
+      $("serverBtn").addEventListener("click", openModal);
+      $("close").addEventListener("click", closeModal);
+      $("modal").addEventListener("click", (e) => {
+        if (e.target === $("modal")) closeModal();
+      });
+      $("q").addEventListener("input", (e) => renderList(e.target.value));
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !$("modal").hidden) closeModal();
+      });
+
+      /* ---- simulated test ---- */
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+      function ramp(target, duration, onTick) {
+        return new Promise((resolve) => {
+          const t0 = performance.now();
+          function frame(now) {
+            const p = Math.min(1, (now - t0) / duration);
+            const eased = 1 - Math.pow(1 - p, 2);
+            const jitter = 0.93 + Math.random() * 0.14;
+            onTick(Math.min(target * 1.04, target * eased * jitter), p);
+            if (p < 1) requestAnimationFrame(frame);
+            else resolve();
+          }
+          requestAnimationFrame(frame);
+        });
+      }
+
+      async function runTest() {
+        running = true;
+        $("go").textContent = "DETENER";
+        $("go").classList.add("running");
+        $("stamp").textContent = "Midiendo…";
+
+        const ping = 5 + Math.random() * 9;
+        const jitter = 0.6 + Math.random() * 2.4;
+        const down = 160 + Math.random() * 140;
+        const up = 200 + Math.random() * 120;
+
+        // ping
+        $("num").textContent = "0";
+        $("num").classList.add("dim");
+        drawGauge(0);
+        phase("Latencia");
+        mark("card-ping", "card-jitter");
+        for (let i = 1; i <= 5; i++) {
+          $("ping").textContent = fmt(ping * (1 + (Math.random() - 0.5) * 0.18));
+          $("jitter").textContent = fmt(jitter * (1 + (Math.random() - 0.5) * 0.5));
+          await sleep(110);
+        }
+        $("ping").textContent = fmt(ping);
+        $("jitter").textContent = fmt(jitter);
+
+        // download
+        phase("Bajada");
+        mark("card-down");
+        $("num").classList.remove("dim");
+        await ramp(down, 3600, (v) => {
+          $("num").textContent = fmt(v);
+          $("down").textContent = fmt(v);
+          drawGauge(v);
+        });
+        $("down").textContent = fmt(down);
+
+        // upload
+        phase("Subida");
+        mark("card-up");
+        await ramp(up, 3000, (v) => {
+          $("num").textContent = fmt(v);
+          $("up").textContent = fmt(v);
+          drawGauge(v);
+        });
+        $("up").textContent = fmt(up);
+
+        // settle
+        $("num").textContent = fmt(down);
+        drawGauge(down);
+        mark();
+        phase("Listo");
+        $("stamp").textContent = new Date().toLocaleTimeString("es-MX", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }) + " · " + selected.name;
+        running = false;
+        $("go").textContent = "MEDIR";
+        $("go").classList.remove("running");
+      }
+
+      $("go").addEventListener("click", () => {
+        if (!running) runTest();
+      });
+
+      setServer(selected);
+      renderList();
+    </script>
+  </body>
+</html>
