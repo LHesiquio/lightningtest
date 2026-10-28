@@ -13,8 +13,9 @@ layer, no state machine, no database.
 
 - Rust (stable) — `rustup` is enough
 - Linux only: `sudo apt install build-essential pkg-config libwebkit2gtk-4.1-dev libssl-dev`
-- The Speedtest CLI binary, either already in `~/.local/bin` or fetched with
-  `scripts/fetch-sidecar.sh`
+- The Speedtest CLI binary. If it is missing, the app downloads it from Ookla on
+  first run into its own data directory (needs `curl` and `tar`, present on
+  Linux, macOS and Windows 10+).
 
 ## Run
 
@@ -31,8 +32,12 @@ launcher at it if you want an icon in your app menu.
 The app looks for it, in this order:
 
 1. next to its own executable (bundled sidecar)
-2. `~/.local/bin/speedtest`
-3. anywhere in `PATH`
+2. its own data dir, `~/.local/share/dev.bumbu.lightningtest/bin/speedtest`
+3. `~/.local/bin/speedtest`
+4. anywhere in `PATH`
+
+If none of those exist it downloads the official archive from
+`install.speedtest.net`, extracts it into (2) and keeps going.
 
 ## Licensing
 

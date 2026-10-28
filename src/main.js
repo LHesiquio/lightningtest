@@ -109,6 +109,16 @@ listen("line", (event) => {
   handleEvent(parsed);
 });
 
+listen("status", (event) => {
+  showError("");
+  setPhase(String(event.payload));
+});
+
+listen("error", (event) => {
+  showError(String(event.payload));
+  setPhase("Error");
+});
+
 listen("stderr", (event) => {
   const line = String(event.payload).trim();
   if (line) showError(line);

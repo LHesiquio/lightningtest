@@ -12,8 +12,9 @@ governed by those terms, not by this repository's MIT license.
 For that reason:
 
 - The binary lives in `src-tauri/binaries/`, which is git-ignored.
-- `scripts/fetch-sidecar.sh` downloads it from Ookla's official URL on the
-  machine that will run the app; it is never committed.
+- At runtime the app may download the CLI from Ookla's official URL straight to
+  the user's machine; it is never committed. `scripts/fetch-sidecar.sh` does the
+  same thing ahead of time.
 - `LICENSE` (MIT) applies to the source code in this repository only.
 
 "Speedtest" is a trademark of Ookla. This project is not affiliated with,
