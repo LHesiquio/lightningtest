@@ -1,0 +1,55 @@
+name: build
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            artifact: lightningtest-linux-x86_64
+            path: src-tauri/target/release/lightningtest
+          - os: windows-latest
+            artifact: lightningtest-windows-x86_64
+            path: src-tauri/target/release/lightningtest.exe
+          # macos-latest is Apple Silicon. Add macos-13 for Intel builds.
+          - os: macos-latest
+            artifact: lightningtest-macos-aarch64
+            path: src-tauri/target/release/lightningtest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Linux deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential pkg-config libssl-dev \
+            libwebkit2gtk-4.1-dev librsvg2-dev
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Build
+        working-directory: src-tauri
+        run: cargo build --release --locked
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.path }}
+          if-no-files-found: error
