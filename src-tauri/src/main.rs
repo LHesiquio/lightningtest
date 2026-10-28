@@ -72,7 +72,9 @@ fn ensure_binary(app: &AppHandle) -> Result<PathBuf, String> {
     // shortcut: relies on curl and tar from the OS (preinstalled on Linux,
     // macOS and Windows 10+); swap for a pure-Rust client if that ever breaks.
     let downloaded = Command::new("curl")
-        .args(["-fsSL", "--retry", "2", url, "-o"])
+        .args(["-fsSL", "--retry", "2"])
+        .arg(&url)
+        .arg("-o")
         .arg(&archive)
         .status()
         .map_err(|e| format!("no pude ejecutar curl: {e}"))?
