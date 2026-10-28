@@ -1,4 +1,4 @@
-# Downloaded at build time, never committed: the Ookla CLI is not redistributable.
+# The Ookla CLI is downloaded at runtime, never committed: not redistributable.
 /src-tauri/binaries/
 /src-tauri/target/
 /target/

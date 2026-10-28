@@ -39,6 +39,16 @@ The app looks for it, in this order:
 If none of those exist it downloads the official archive from
 `install.speedtest.net`, extracts it into (2) and keeps going.
 
+## Build a .deb
+
+```sh
+npx @tauri-apps/cli@2 build --bundles deb
+```
+
+Output: `src-tauri/target/release/bundle/deb/lightningtest_0.1.0_amd64.deb`, install
+with `sudo dpkg -i`. It ships a desktop entry and the icons from
+`src-tauri/icons/`.
+
 ## Licensing
 
 Code: MIT (see `LICENSE`). The Ookla CLI is proprietary, is **not** part of this
@@ -46,8 +56,7 @@ repository, and is not covered by that license — see `NOTICE.md`.
 
 ## Known limits
 
-- `bundle.active` is `false`, so there is no `.deb`/`.AppImage` yet. Enable it in
-  `src-tauri/tauri.conf.json` and add `icons/` when you want one; that also
-  activates `externalBin` so the sidecar travels with the installer.
+- Only the `.deb` bundle is enabled. Windows and macOS need their own packaging
+  and signing; the CLI is downloaded at runtime, so no Ookla binary is bundled.
 - No test history, no server picker, no export. Add them when you actually miss
   them.
