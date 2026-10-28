@@ -3,6 +3,22 @@
 A small desktop GUI for the Ookla Speedtest CLI. Tauri v2 + Rust, static
 HTML/CSS/JS front-end, no bundler and no npm dependencies.
 
+## Download
+
+Latest build: **[releases page](https://github.com/LHesiquio/lightningtest/releases/latest)**
+
+| Platform | Direct download | How to run |
+|---|---|---|
+| Linux (Debian/Ubuntu) | [`lightningtest_amd64.deb`](https://github.com/LHesiquio/lightningtest/releases/latest/download/lightningtest_amd64.deb) | `sudo dpkg -i lightningtest_amd64.deb` |
+| Linux (any distro) | [`lightningtest-linux-x86_64`](https://github.com/LHesiquio/lightningtest/releases/latest/download/lightningtest-linux-x86_64) | `chmod +x` it, then run |
+| Windows 10+ | [`lightningtest-windows-x86_64.exe`](https://github.com/LHesiquio/lightningtest/releases/latest/download/lightningtest-windows-x86_64.exe) | double click |
+| macOS (Apple Silicon) | [`lightningtest-macos-aarch64.zip`](https://github.com/LHesiquio/lightningtest/releases/latest/download/lightningtest-macos-aarch64.zip) | `unzip`, `chmod +x`, run from a terminal |
+
+The builds are unsigned: Windows SmartScreen and macOS Gatekeeper will warn. On
+macOS there is no `.app` bundle yet, so it launches from the terminal.
+
+The Ookla CLI is not bundled — the app downloads it on first run.
+
 ## Why it looks the way it does
 
 The CLI already speaks JSON lines (`-f jsonl`), so the Rust side just spawns it,
