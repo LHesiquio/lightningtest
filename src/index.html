@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LightningTest</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <section class="readout">
+        <div class="speed">
+          <span id="speed">—</span>
+          <span class="unit">Mbps</span>
+        </div>
+        <span id="phase" class="phase">Listo</span>
+      </section>
+
+      <div class="gauge" role="img" aria-label="Velocidad instantánea">
+        <div id="fill" class="fill"></div>
+      </div>
+
+      <section class="cards">
+        <div class="card">
+          <span id="ping" class="num">—</span>
+          <span class="cap">ping ms</span>
+        </div>
+        <div class="card">
+          <span id="down" class="num">—</span>
+          <span class="cap">bajada Mbps</span>
+        </div>
+        <div class="card">
+          <span id="up" class="num">—</span>
+          <span class="cap">subida Mbps</span>
+        </div>
+      </section>
+
+      <section class="row">
+        <button id="go" type="button">Medir</button>
+        <span id="server" class="meta"></span>
+      </section>
+
+      <p id="error" class="error" role="alert"></p>
+    </main>
+    <script src="main.js"></script>
+  </body>
+</html>
