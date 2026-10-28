@@ -36,3 +36,7 @@ for name, size in SIZES.items():
     path = f"src-tauri/icons/{name}.png"
     render(size).save(path)
     print(f"{path} {size}x{size}")
+
+# Windows needs an .ico for the resource file that tauri-build embeds.
+render(256).save("src-tauri/icons/icon.ico", sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
+print("src-tauri/icons/icon.ico (multi-size)")
