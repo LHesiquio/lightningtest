@@ -8,16 +8,53 @@
       :root {
         color-scheme: dark;
         --bg: #080b14;
+        --bg-glow: #16233a;
         --panel: #111726;
         --panel-2: #0d1320;
         --line: #1f2a3f;
+        --line-strong: #2d3c58;
         --text: #edf2ff;
         --dim: #7f8ca6;
+        --dim-strong: #5c6880;
+        --track: #162033;
+        --active-bg: #101b2a;
+        --active-line: #2b4a63;
+        --icon-bg: #0b1220;
+        --hover: #162035;
+        --overlay: rgba(4, 7, 13, 0.72);
+        --focus: #2f4a68;
         --cyan: #2fd8ff;
         --violet: #8b6cff;
         --green: #3ddc97;
-        --amber: #ffbe4d;
+        --glow: rgba(47, 216, 255, 0.45);
+        --go-shadow: rgba(47, 216, 255, 0.9);
         --radius: 16px;
+      }
+
+      /* Light theme mirrors speedtest.net: white page, #141526 as brand ink. */
+      body.light {
+        color-scheme: light;
+        --bg: #ffffff;
+        --bg-glow: #e9eefb;
+        --panel: #f7f8fa;
+        --panel-2: #f1f3f7;
+        --line: #e2e6ee;
+        --line-strong: #cdd4e0;
+        --text: #141526;
+        --dim: #6b7385;
+        --dim-strong: #9aa2b1;
+        --track: #eceff5;
+        --active-bg: #eef4ff;
+        --active-line: #b9d4f5;
+        --icon-bg: #ffffff;
+        --hover: #eef1f6;
+        --overlay: rgba(20, 21, 38, 0.32);
+        --focus: #9cc0e8;
+        --cyan: #0ea5e9;
+        --violet: #7c3aed;
+        --green: #22b573;
+        --glow: rgba(14, 165, 233, 0.3);
+        --go-shadow: rgba(14, 165, 233, 0.55);
       }
 
       * { box-sizing: border-box; }
@@ -28,7 +65,7 @@
         display: grid;
         place-items: center;
         background:
-          radial-gradient(70% 50% at 50% 0%, #16233a 0%, transparent 70%),
+          radial-gradient(70% 50% at 50% 0%, var(--bg-glow) 0%, transparent 70%),
           var(--bg);
         color: var(--text);
         font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -38,10 +75,10 @@
       .app {
         width: 100%;
         max-width: 560px;
-        padding: 20px 24px 24px;
+        padding: 16px 24px 18px;
         display: flex;
         flex-direction: column;
-        gap: 18px;
+        gap: 15px;
       }
 
       /* ---- top bar ---- */
@@ -49,10 +86,10 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
+        gap: 10px;
       }
 
-      .conn { display: flex; flex-direction: column; gap: 2px; }
+      .conn { display: flex; flex-direction: column; gap: 2px; flex: none; }
       .isp { font-size: 13px; font-weight: 600; }
       .ip {
         font-size: 11px;
@@ -60,11 +97,58 @@
         font-variant-numeric: tabular-nums;
       }
 
+      .tools {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        min-width: 0;
+        flex: 1 1 auto;
+      }
+
+      .switch {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex: none;
+        width: 54px;
+        height: 28px;
+        padding: 0 7px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--panel-2);
+        cursor: pointer;
+      }
+
+      .switch:hover { border-color: var(--line-strong); }
+
+      .switch:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+      .switch .glyph {
+        font-size: 10px;
+        line-height: 1;
+        color: var(--dim);
+      }
+
+      .switch .knob {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--cyan), var(--violet));
+        transition: transform 180ms ease;
+      }
+
+      .switch[aria-checked="true"] .knob { transform: translateX(26px); }
+
       .server {
         display: flex;
         align-items: center;
         gap: 8px;
-        max-width: 60%;
+        min-width: 0;
         padding: 8px 12px;
         border: 1px solid var(--line);
         border-radius: 999px;
@@ -75,7 +159,7 @@
         cursor: pointer;
       }
 
-      .server:hover { border-color: #2d3c58; }
+      .server:hover { border-color: var(--line-strong); }
       .server .label {
         overflow: hidden;
         text-overflow: ellipsis;
@@ -97,10 +181,9 @@
         position: relative;
         display: grid;
         place-items: center;
-        margin-top: 4px;
       }
 
-      .gauge { width: 100%; max-width: 320px; aspect-ratio: 1; }
+      .gauge { width: 100%; max-width: 280px; aspect-ratio: 1; }
 
       .track, .arc {
         fill: none;
@@ -108,13 +191,16 @@
         stroke-linecap: round;
       }
 
-      .track { stroke: #16203300; stroke: var(--panel); }
+      .track { stroke: var(--track); }
 
       .arc {
         stroke: url(#grad);
-        filter: drop-shadow(0 0 9px rgba(47, 216, 255, 0.45));
+        filter: drop-shadow(0 0 9px var(--glow));
         transition: stroke-dasharray 120ms linear;
       }
+
+      .g1 { stop-color: var(--cyan); }
+      .g2 { stop-color: var(--violet); }
 
       .center {
         position: absolute;
@@ -140,7 +226,7 @@
         line-height: 1;
       }
 
-      #num.dim { color: #5c6880; }
+      #num.dim { color: var(--dim-strong); }
 
       .unit {
         font-size: 13px;
@@ -171,7 +257,7 @@
         font-weight: 800;
         letter-spacing: 0.06em;
         cursor: pointer;
-        box-shadow: 0 10px 30px -12px rgba(47, 216, 255, 0.9);
+        box-shadow: 0 10px 30px -12px var(--go-shadow);
       }
 
       #go:hover { filter: brightness(1.07); }
@@ -200,7 +286,7 @@
         border-radius: var(--radius);
       }
 
-      .card.active { border-color: #2b4a63; background: #101b2a; }
+      .card.active { border-color: var(--active-line); background: var(--active-bg); }
 
       .icon {
         display: grid;
@@ -209,7 +295,7 @@
         height: 34px;
         flex: none;
         border-radius: 10px;
-        background: #0b1220;
+        background: var(--icon-bg);
         color: var(--dim);
       }
 
@@ -244,7 +330,7 @@
         display: grid;
         place-items: center;
         padding: 24px;
-        background: rgba(4, 7, 13, 0.72);
+        background: var(--overlay);
         backdrop-filter: blur(6px);
       }
 
@@ -292,7 +378,7 @@
         outline: none;
       }
 
-      #q:focus { border-color: #2f4a68; }
+      #q:focus { border-color: var(--focus); }
 
       #list {
         list-style: none;
@@ -320,7 +406,7 @@
         cursor: pointer;
       }
 
-      #list button:hover { background: #162035; }
+      #list button:hover { background: var(--hover); }
       #list .sel { color: var(--cyan); font-size: 12px; }
 
       .s-name { font-size: 13px; }
@@ -342,21 +428,30 @@
           <span class="isp">Telmex DSL</span>
           <span class="ip">2806:1016:7:98e6::e873</span>
         </div>
-        <button class="server" id="serverBtn" type="button">
-          <span class="dot"></span>
-          <span class="label" id="serverLabel">Megacable · Ciudad Juárez</span>
-          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
-            <path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.6" fill="none" />
-          </svg>
-        </button>
+        <div class="tools">
+          <button class="server" id="serverBtn" type="button">
+            <span class="dot"></span>
+            <span class="label" id="serverLabel">Megacable · Ciudad Juárez</span>
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.6" fill="none" />
+            </svg>
+          </button>
+
+          <button class="switch" id="theme" type="button" role="switch" aria-checked="true"
+                  aria-label="Cambiar a modo claro" title="Modo claro / oscuro">
+            <span class="glyph" aria-hidden="true">☀</span>
+            <span class="glyph" aria-hidden="true">☾</span>
+            <span class="knob"></span>
+          </button>
+        </div>
       </header>
 
       <section class="gauge-wrap">
         <svg class="gauge" viewBox="0 0 300 300" aria-hidden="true">
           <defs>
             <linearGradient id="grad" x1="0" y1="1" x2="1" y2="0">
-              <stop offset="0%" stop-color="#2fd8ff" />
-              <stop offset="100%" stop-color="#8b6cff" />
+              <stop class="g1" offset="0%" />
+              <stop class="g2" offset="100%" />
             </linearGradient>
           </defs>
           <circle class="track" cx="150" cy="150" r="120"
@@ -496,6 +591,22 @@
         $("serverLabel").textContent = `${s.name} · ${s.location}`;
         $("sid").textContent = `servidor ${s.id}`;
       }
+
+      /* ---- theme switch ---- */
+      const THEME_KEY = "lt-theme";
+
+      function applyTheme(light) {
+        document.body.classList.toggle("light", light);
+        $("theme").setAttribute("aria-checked", String(!light));
+        $("theme").setAttribute("aria-label", light ? "Cambiar a modo oscuro" : "Cambiar a modo claro");
+        localStorage.setItem(THEME_KEY, light ? "light" : "dark");
+      }
+
+      $("theme").addEventListener("click", () => {
+        applyTheme(!document.body.classList.contains("light"));
+      });
+
+      applyTheme(localStorage.getItem(THEME_KEY) === "light");
 
       /* ---- server picker ---- */
       function renderList(filter = "") {
@@ -638,6 +749,7 @@
 
       setServer(selected);
       renderList();
+      drawGauge(0); // keeps the round linecap from painting a dot at zero
     </script>
   </body>
 </html>
