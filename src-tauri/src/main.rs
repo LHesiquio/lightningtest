@@ -111,9 +111,13 @@ fn ensure_binary(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(bin)
 }
 
-fn stream_test(app: &AppHandle, bin: PathBuf) -> Result<(), String> {
-    let mut child = Command::new(&bin)
-        .args(["--accept-license", "--accept-gdpr", "-f", "jsonl"])
+fn stream_test(app: &AppHandle, bin: PathBuf, server_id: Option<u64>) -> Result<(), String> {
+    let mut command = Command::new(&bin);
+    command.args(["--accept-license", "--accept-gdpr", "-f", "jsonl"]);
+    if let Some(id) = server_id {
+        command.arg("-s").arg(id.to_string());
+    }
+    let mut child = command
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
@@ -143,14 +147,14 @@ fn stream_test(app: &AppHandle, bin: PathBuf) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn run_test(app: AppHandle) -> Result<(), String> {
+fn run_test(app: AppHandle, server_id: Option<u64>) -> Result<(), String> {
     if app.state::<Running>().0.lock().unwrap().is_some() {
         return Err("ya hay una medición en curso".into());
     }
 
     // Downloading and running both block, so keep them off the UI thread.
     std::thread::spawn(move || {
-        let outcome = ensure_binary(&app).and_then(|bin| stream_test(&app, bin));
+        let outcome = ensure_binary(&app).and_then(|bin| stream_test(&app, bin, server_id));
         if let Err(message) = outcome {
             let _ = app.emit("error", message);
         }
@@ -158,6 +162,24 @@ fn run_test(app: AppHandle) -> Result<(), String> {
     });
 
     Ok(())
+}
+
+/// Returns the CLI's own `serverList` JSON so the frontend owns the rendering.
+#[tauri::command]
+async fn list_servers(app: AppHandle) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let bin = ensure_binary(&app)?;
+        let output = Command::new(bin)
+            .args(["--accept-license", "--accept-gdpr", "-L", "-f", "json"])
+            .output()
+            .map_err(|e| format!("no pude listar servidores: {e}"))?;
+        if !output.status.success() {
+            return Err("el CLI no pudo listar servidores".into());
+        }
+        String::from_utf8(output.stdout).map_err(|e| e.to_string())
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
@@ -171,7 +193,7 @@ fn cancel_test(app: AppHandle) {
 fn main() {
     tauri::Builder::default()
         .manage(Running(Mutex::new(None)))
-        .invoke_handler(tauri::generate_handler![run_test, cancel_test])
+        .invoke_handler(tauri::generate_handler![run_test, cancel_test, list_servers])
         .run(tauri::generate_context!())
         .expect("error while running lightningtest");
 }

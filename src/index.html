@@ -7,41 +7,129 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main>
-      <section class="readout">
-        <div class="speed">
-          <span id="speed">—</span>
-          <span class="unit">Mbps</span>
+    <div class="app">
+      <header class="top">
+        <div class="conn">
+          <span class="isp" id="isp">—</span>
+          <span class="ip" id="ip"></span>
         </div>
-        <span id="phase" class="phase">Listo</span>
+        <div class="tools">
+          <button class="server" id="serverBtn" type="button">
+            <span class="dot"></span>
+            <span class="label" id="serverLabel">Servidor automático</span>
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.6" fill="none" />
+            </svg>
+          </button>
+
+          <button class="switch" id="theme" type="button" role="switch" aria-checked="true"
+                  aria-label="Cambiar a modo claro" title="Modo claro / oscuro">
+            <span class="glyph" aria-hidden="true">☀</span>
+            <span class="glyph" aria-hidden="true">☾</span>
+            <span class="knob"></span>
+          </button>
+        </div>
+      </header>
+
+      <section class="gauge-wrap">
+        <svg class="gauge" viewBox="0 0 300 300" aria-hidden="true">
+          <defs>
+            <linearGradient id="grad" x1="0" y1="1" x2="1" y2="0">
+              <stop class="g1" offset="0%" />
+              <stop class="g2" offset="100%" />
+            </linearGradient>
+          </defs>
+          <circle class="track" cx="150" cy="150" r="120"
+                  stroke-dasharray="565.5 754" transform="rotate(135 150 150)" />
+          <circle id="arc" class="arc" cx="150" cy="150" r="120"
+                  stroke-dasharray="0 754" transform="rotate(135 150 150)" />
+        </svg>
+
+        <div class="center">
+          <div class="value">
+            <span id="num" class="dim">0</span>
+            <span class="unit">Mbps</span>
+          </div>
+          <span class="phase" id="phase">Listo</span>
+          <span class="err" id="error" role="alert"></span>
+        </div>
       </section>
 
-      <div class="gauge" role="img" aria-label="Velocidad instantánea">
-        <div id="fill" class="fill"></div>
+      <div class="actions">
+        <button id="go" type="button">MEDIR</button>
       </div>
 
       <section class="cards">
-        <div class="card">
-          <span id="ping" class="num">—</span>
-          <span class="cap">ping ms</span>
+        <div class="card" id="card-ping">
+          <span class="icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M1 8h3l2-5 3 10 2-5h4" stroke="currentColor" stroke-width="1.5"
+                    fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <div class="body">
+            <span class="k">Ping</span>
+            <span class="v"><span id="ping">—</span><span class="u2">ms</span></span>
+          </div>
         </div>
-        <div class="card">
-          <span id="down" class="num">—</span>
-          <span class="cap">bajada Mbps</span>
+
+        <div class="card" id="card-jitter">
+          <span class="icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M1 10l3-6 3 8 3-6 4 4" stroke="currentColor" stroke-width="1.5"
+                    fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <div class="body">
+            <span class="k">Jitter</span>
+            <span class="v"><span id="jitter">—</span><span class="u2">ms</span></span>
+          </div>
         </div>
-        <div class="card">
-          <span id="up" class="num">—</span>
-          <span class="cap">subida Mbps</span>
+
+        <div class="card" id="card-down">
+          <span class="icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 2v10m0 0l-4-4m4 4l4-4" stroke="currentColor" stroke-width="1.5"
+                    fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <div class="body">
+            <span class="k">Bajada</span>
+            <span class="v"><span id="down">—</span><span class="u2">Mbps</span></span>
+          </div>
+        </div>
+
+        <div class="card" id="card-up">
+          <span class="icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 14V4m0 0l-4 4m4-4l4 4" stroke="currentColor" stroke-width="1.5"
+                    fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <div class="body">
+            <span class="k">Subida</span>
+            <span class="v"><span id="up">—</span><span class="u2">Mbps</span></span>
+          </div>
         </div>
       </section>
 
-      <section class="row">
-        <button id="go" type="button">Medir</button>
-        <span id="server" class="meta"></span>
-      </section>
+      <footer class="foot">
+        <span id="stamp">Sin mediciones todavía</span>
+        <span id="sid"></span>
+      </footer>
+    </div>
 
-      <p id="error" class="error" role="alert"></p>
-    </main>
+    <div class="modal" id="modal" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+        <header>
+          <h2 id="sheetTitle">Elegir servidor</h2>
+          <button class="x" id="close" type="button" aria-label="Cerrar">✕</button>
+        </header>
+        <input id="q" type="search" placeholder="Buscar por ciudad o proveedor…" autocomplete="off" />
+        <ul id="list"></ul>
+        <p class="hint">Los más cercanos según Ookla para tu conexión.</p>
+      </div>
+    </div>
     <script src="main.js"></script>
   </body>
 </html>
