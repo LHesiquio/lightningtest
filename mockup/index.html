@@ -27,7 +27,11 @@
         --violet: #8b6cff;
         --green: #3ddc97;
         --glow: rgba(47, 216, 255, 0.45);
+        --go-bg: linear-gradient(135deg, #2fd8ff, #8b6cff);
+        --go-ink: #05080f;
+        --go-border: transparent;
         --go-shadow: rgba(47, 216, 255, 0.9);
+        --go-hover: 1.07;
         --radius: 16px;
       }
 
@@ -54,7 +58,11 @@
         --violet: #7c3aed;
         --green: #22b573;
         --glow: rgba(14, 165, 233, 0.3);
-        --go-shadow: rgba(14, 165, 233, 0.55);
+        --go-bg: linear-gradient(135deg, #eaf6fe, #f0ecff);
+        --go-ink: #141526;
+        --go-border: #dbe7f4;
+        --go-shadow: rgba(20, 21, 38, 0.18);
+        --go-hover: 0.97;
       }
 
       * { box-sizing: border-box; }
@@ -249,10 +257,10 @@
       #go {
         min-width: 160px;
         padding: 13px 34px;
-        border: 0;
+        border: 1px solid var(--go-border);
         border-radius: 999px;
-        background: linear-gradient(135deg, var(--cyan), var(--violet));
-        color: #05080f;
+        background: var(--go-bg);
+        color: var(--go-ink);
         font: inherit;
         font-weight: 800;
         letter-spacing: 0.06em;
@@ -260,7 +268,7 @@
         box-shadow: 0 10px 30px -12px var(--go-shadow);
       }
 
-      #go:hover { filter: brightness(1.07); }
+      #go:hover { filter: brightness(var(--go-hover)); }
 
       #go.running {
         background: transparent;
